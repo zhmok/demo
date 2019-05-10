@@ -1,0 +1,15 @@
+#  spring2.x 以上，移除自动配置类 来代替 security.basic.enable=false
+#  @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
+#  或者配置
+#  HttpSecurity http
+#  http.authorizeRequests().antMatchers("/**").permitAll();
+
+spring:
+  profiles:
+    active: dev
+  security:
+#    -  "/oauth/**"
+  #    - "/login/**"
+      - "/swagger-ui.html"
+      - "/swagger-resources/**"
+  #    - "/v2/api-docs"
