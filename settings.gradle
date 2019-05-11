@@ -22,4 +22,5 @@ include 'gateway'
 include 'zuul'
 include 'eureka'
 include 'swagger'
+include 'demo-server'
 
