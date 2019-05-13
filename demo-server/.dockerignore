@@ -1,0 +1,10 @@
+build/classes/
+build/generated/
+build/tmp/
+out/
+src/
+
+.gradle
+.class
+.java
+
