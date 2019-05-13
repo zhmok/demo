@@ -16,6 +16,6 @@ public class DemoServerApplication {
 
     @GetMapping("/test")
     public ResponseEntity<String> test(){
-        return ResponseEntity.ok("test ok..");
+        return ResponseEntity.ok("test ok2..");
     }
 }
