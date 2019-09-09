@@ -2,6 +2,14 @@
 
 [spring-boot-gradle 文档](https://docs.spring.io/spring-boot/docs/2.0.9.RELEASE/gradle-plugin/reference/html/)
 
+
+
+
+
+
+
+
+
 ## 问题
 >1.fastdfs-client-java jar 不存在 <br >
 由于配置的阿里maven仓库 fastdfs-client-java jar包无法下载到 

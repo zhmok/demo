@@ -3,7 +3,9 @@ buildscript {
         springCloudVersion = 'Greenwich.RELEASE'
         springBootVersion = '2.2.0.M1'
         springDataVersion = 'Moore-M3'
+        springSecurityVersion = '5.1.6.RELEASE'
     }
+
     repositories {
         maven { url 'https://maven.aliyun.com/repository/public' }
         maven { url 'https://mvnrepository.com/' }
@@ -15,6 +17,7 @@ buildscript {
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
 //        compile group: 'org.springframework.boot', name: 'spring-boot-gradle-plugin', version: '2.1.4.RELEASE', ext: 'pom'
+
     }
 }
 
@@ -39,12 +42,14 @@ configure(allprojects) { project ->
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
 
+
     dependencyManagement {
         imports {
 //            mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
             mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
             mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
             mavenBom("org.springframework.data:spring-data-releasetrain:${springDataVersion}")
+            mavenBom "org.springframework.security:spring-security-bom:${springSecurityVersion}"
         }
 
     }
@@ -52,11 +57,11 @@ configure(allprojects) { project ->
     def commonCompilerArgs = ["-Xlint:serial", "-Xlint:cast", "-Xlint:classfile", "-Xlint:dep-ann",
                               "-Xlint:divzero", "-Xlint:empty", "-Xlint:finally", "-Xlint:overrides",
                               "-Xlint:path",/* "-Xlint:processing",*/ "-Xlint:static", "-Xlint:try", "-Xlint:-options"]
-    
+
     compileJava.options*.compilerArgs = commonCompilerArgs +
             ["-Xlint:varargs", "-Xlint:fallthrough", "-Xlint:rawtypes",
              "-Xlint:deprecation", "-Xlint:unchecked", "-Werror"];
-    
+
     compileTestJava.options*.compilerArgs = commonCompilerArgs +
             ["-Xlint:-varargs", "-Xlint:-fallthrough", "-Xlint:-rawtypes",
              "-Xlint:-deprecation", "-Xlint:-unchecked"];
@@ -84,8 +89,10 @@ configure(allprojects) { project ->
         testImplementation 'junit:junit'
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
-//        implementation "org.springframework.plugin:spring-plugin-core:1.2.0.RELEASE"
-        
+        testCompileOnly 'org.projectlombok:lombok'
+        testAnnotationProcessor 'org.projectlombok:lombok'
+        implementation "org.springframework.plugin:spring-plugin-core:1.2.0.RELEASE"
+
 //        implementation "io.springfox:springfox-swagger-ui:${swaggerVersion}"
 //        implementation "org.mybatis.spring.boot:mybatis-spring-boot-starter:${mybatisSpringBootVersion}"
 //        implementation "mysql:mysql-connector-java:${mysqlConnectionVersion}"
@@ -118,51 +125,52 @@ configure(allprojects) { project ->
 
 configure(subprojects) {
     subProject ->
-
+//
         def isWeb = (subProject.name != 'common')
-
+//
         if (!isWeb) {
             jar.enabled = true
             bootJar.enabled = false
         } else {
             bootJar.enabled = true
-            jar.enabled = false
-            compileTestJava.enabled = false
-            processTestResources.enabled = false
-            testClasses.enabled = false
+//            jar.enabled = false
+//            compileTestJava.enabled = false
+//            processTestResources.enabled = false
+//            testClasses.enabled = false
             test.enabled = false
             check.enabled = false
         }
-        dependencies {
-            implementation 'org.springframework.boot:spring-boot-starter'
+//        dependencies {
+//
+//            implementation 'org.springframework.boot:spring-boot-starter'
+////            implementation 'org.springframework.boot:spring-boot-devtools'
+////            implementation "com.github.ulisesbocchio:jasypt-spring-boot:${jasyptSpring}"
+////            implementation "io.springfox:springfox-swagger2:${swaggerVersion}"
+////            implementation "io.springfox:springfox-spring-web:${swaggerVersion}"
+////            implementation "org.springframework.plugin:spring-plugin-core:1.2.0.RELEASE"
+//            if (isWeb) {
+//            implementation 'org.springframework.boot:spring-boot-starter'
 //            implementation 'org.springframework.boot:spring-boot-devtools'
 //            implementation "com.github.ulisesbocchio:jasypt-spring-boot:${jasyptSpring}"
 //            implementation "io.springfox:springfox-swagger2:${swaggerVersion}"
 //            implementation "io.springfox:springfox-spring-web:${swaggerVersion}"
 //            implementation "org.springframework.plugin:spring-plugin-core:1.2.0.RELEASE"
-            if (isWeb) {
-            implementation 'org.springframework.boot:spring-boot-starter'
-            implementation 'org.springframework.boot:spring-boot-devtools'
-            implementation "com.github.ulisesbocchio:jasypt-spring-boot:${jasyptSpring}"
-            implementation "io.springfox:springfox-swagger2:${swaggerVersion}"
-            implementation "io.springfox:springfox-spring-web:${swaggerVersion}"
-            implementation "org.springframework.plugin:spring-plugin-core:1.2.0.RELEASE"
-            }
-        }
+//            }
+//        }
 }
 
-configure(rootProject) {
-//    compileJava.enabled = false;
-//    processResources.enabled = false;
-//    classes.enabled = false;
-    bootJar.enabled = false;
-//    jar.enabled = false;
-////    assemble.enabled = false;
-//    compileTestJava.enabled = false;
-//    processTestResources.enabled = false;
-//    testClasses.enabled = false;
-//    test.enabled = false;
-//    check.enabled = false;
-//    build.enabled = false;
-
-}
+//configure(rootProject) {
+////    compileJava.enabled = false;
+////    processResources.enabled = false;
+////    classes.enabled = false;
+//    bootJar.enabled = false;
+////    jar.enabled = false;
+//////    assemble.enabled = false;
+////    compileTestJava.enabled = false;
+////    processTestResources.enabled = false;
+////    testClasses.enabled = false;
+////    test.enabled = false;
+////    check.enabled = false;
+////    build.enabled = false;
+//
+//}

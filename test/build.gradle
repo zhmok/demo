@@ -1,0 +1,8 @@
+
+dependencies {
+    compile 'org.projectlombok:lombok'
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    annotationProcessor project(":apt")
+    implementation 'io.netty:netty-all:4.1.39.Final'
+}

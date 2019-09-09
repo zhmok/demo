@@ -5,4 +5,10 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-oauth2'
 //    implementation 'org.webjars:swagger-ui:3.22.0'
     implementation project(":common")
+
+
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+//    testImplementation 'org.springframework.boot:spring-security-test:5.2.0.M4'
 }

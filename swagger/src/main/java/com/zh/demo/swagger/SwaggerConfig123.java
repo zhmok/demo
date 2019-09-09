@@ -22,6 +22,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import java.lang.annotation.Annotation;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -59,14 +60,14 @@ public class SwaggerConfig123 {
                 //Ignores controllers annotated with @CustomIgnore
                 .apis(RequestHandlerSelectors.basePackage("com.zh.demo.swagger.api"))
                 .apis((RequestHandlerSelectors.any())) //Selection by RequestHandler
-                        .paths(PathSelectors.any()) // and by paths
-                        .build()
-                        .apiInfo(apiInfo());
+                .paths(PathSelectors.any()) // and by paths
+                .build()
+                .apiInfo(apiInfo());
 //                        .securitySchemes(securitySchemes())
 //                        .securityContext(securityContext());
     }
 
-//        @Bean
+    //        @Bean
     public Docket createRestApi() {
         Docket docket = new Docket(DocumentationType.SWAGGER_2);
         ParameterBuilder tokenBuilder = new ParameterBuilder();
@@ -131,9 +132,10 @@ public class SwaggerConfig123 {
                 .version("1.0.0")
                 .build();
     }
+
     @SuppressWarnings("unchecked")
     public Class<? extends Annotation> getMethodAnnotation() {
-        if (!isImportSpringWeb()) {
+        if (!isSpringWeb()) {
             return null;
         }
         try {
@@ -145,8 +147,11 @@ public class SwaggerConfig123 {
         }
 
     }
-    public boolean isImportSpringWeb() {
-        return Package.getPackage("org.springframework.web") != null
-                || Package.getPackage("org.springframework.web.reactive") != null;
+
+    public boolean isSpringWeb() {
+        var packages = Arrays.asList(Package.getPackages());
+
+        return packages.contains("org.springframework.web")
+                || packages.contains("org.springframework.web.reactive");
     }
 }

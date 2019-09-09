@@ -8,8 +8,26 @@ spring:
   profiles:
     active: dev
   security:
-#    -  "/oauth/**"
-  #    - "/login/**"
-      - "/swagger-ui.html"
-      - "/swagger-resources/**"
-  #    - "/v2/api-docs"
+#    user:
+#      password: 123
+#  #    - "/v2/api-docs"
+#
+#      name: 123
+#
+
+
+
+
+
+
+
+
+---
+
+spring:
+  profiles: test
+  devtools:
+    restart:
+      enabled: false
+    livereload:
+      enabled: false
