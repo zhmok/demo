@@ -51,7 +51,6 @@ class HexDumpProxyInitializer extends ChannelInitializer<SocketChannel> {
         System.out.println(this.getClass());
         ch.pipeline().addLast(
                 new LoggingHandler(LogLevel.INFO),
-                this
-        );
+                this);
     }
 }
