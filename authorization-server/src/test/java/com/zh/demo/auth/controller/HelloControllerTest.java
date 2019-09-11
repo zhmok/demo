@@ -36,11 +36,11 @@ public class HelloControllerTest {
         mock.objectMapper = spy(ObjectMapper.class);
 //        when(mock.objectMapper.writeValueAsString(any())).thenThrow(new RuntimeException());
 //        when(mock.objectMapper.writeValueAsString(any())).thenReturn("get hello");
-        System.out.println(mock.get());
-        System.out.println(mock.get());
+//        System.out.println(mock.get());
+//        System.out.println(mock.get());
 //        assertEquals("get hello",mock.get());
 
-        verify(mock,timeout(0).times(2)).get();
+//        verify(mock,timeout(0).times(2)).get();
 
 
 //        .get();

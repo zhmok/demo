@@ -45,8 +45,8 @@ public class AuthorizationApplicationTest {
 
                 .andDo(print()).andReturn().getResponse().getContentAsString();
         System.out.println("contentAsString = " + contentAsString);
-        String s = helloController.get();
-        System.out.println(s);
+//        String s = helloController.get();
+//        System.out.println(s);
 
     }
 
@@ -69,8 +69,8 @@ public class AuthorizationApplicationTest {
 
                 .andDo(print()).andReturn().getResponse().getContentAsString();
         System.out.println("contentAsString = " + contentAsString);
-        String s = helloController.get();
-        System.out.println(s);
+//        String s = helloController.get();
+//        System.out.println(s);
 
     }
 }
