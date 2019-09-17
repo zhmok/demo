@@ -8,6 +8,8 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.*;
+import io.netty.util.CharsetUtil;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
@@ -19,7 +21,7 @@ import java.nio.charset.Charset;
 public class NettyNioServer {
     public static void main(String[] args) throws Exception {
         if (args.length != 1) {
-            System.out.println("Usage" + EchoServer.class.getSimpleName() + "<port>");
+            System.out.println("Usage:" + EchoServer.class.getSimpleName() + "<port>");
         }
 //        int port = Integer.parseInt(args[0]);
         int port = 8081;
@@ -41,9 +43,31 @@ public class NettyNioServer {
                             ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
                                 @Override
                                 public void channelActive(ChannelHandlerContext ctx) throws Exception {
-                                    ctx.writeAndFlush(buf.duplicate()).addListener(ChannelFutureListener.CLOSE);
+                                    ctx.writeAndFlush(buf.duplicate());
                                 }
                             });
+
+                            ch.pipeline().addLast(new ChannelInboundHandlerAdapter(){
+                                @Override
+                                public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+
+                                    ByteBuf m = (ByteBuf) msg;
+
+                                    System.out.println(m.toString(CharsetUtil.UTF_8));
+
+                                    FullHttpResponse resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
+                                            HttpResponseStatus.OK,
+                                            buf);
+
+                                    resp.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
+
+                                    // 2.发送
+                                    // 注意必须在使用完之后，close channel
+                                    ctx.writeAndFlush(m).addListener(ChannelFutureListener.CLOSE);
+                                    m.release();
+                                }
+                            });
+
                         }
                     });
             ChannelFuture f = b.bind().sync();

@@ -3,6 +3,7 @@ package com.zh.test.netty.proxy;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.timeout.IdleStateHandler;
 
@@ -25,9 +26,7 @@ public class HexDumpProxyFrontendHandler extends ChannelInboundHandlerAdapter {
 
 
     public HexDumpProxyFrontendHandler(String remoteHost, int remotePort) {
-
         this.remoteHost = remoteHost;
-
         this.remotePort = remotePort;
 
     }
@@ -36,19 +35,22 @@ public class HexDumpProxyFrontendHandler extends ChannelInboundHandlerAdapter {
     @Override
 
     public void channelActive(ChannelHandlerContext ctx) {
-
         final Channel inboundChannel = ctx.channel();
         // Start the connection attempt.
         Bootstrap b = new Bootstrap();
         b.group(inboundChannel.eventLoop())
                 .channel(ctx.channel().getClass())
                 .handler(new HexDumpProxyBackendHandler(inboundChannel))
-                .handler(new IdleStateHandler(0,0,0, TimeUnit.SECONDS))
-
+//                .handler(new IdleStateHandler(0,0,0, TimeUnit.SECONDS))
+                .handler(new ChannelInitializer<SocketChannel>(){
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new HttpClientCodec());
+                    }
+                })
                 .option(ChannelOption.AUTO_READ, false);
         ChannelFuture f = b.connect(remoteHost, remotePort);
         outboundChannel = f.channel();
-
         f.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) {
@@ -67,44 +69,33 @@ public class HexDumpProxyFrontendHandler extends ChannelInboundHandlerAdapter {
     @Override
 
     public void channelRead(final ChannelHandlerContext ctx, Object msg) throws UnsupportedEncodingException {
-        if(msg instanceof HttpObjectAggregator){
+        System.out.println(msg);
+        if (outboundChannel.isActive()) {
+            if(msg instanceof HttpRequest){
+                DefaultHttpRequest request = (DefaultHttpRequest) msg;
 
-        }else if(msg instanceof DefaultHttpRequest){
-            DefaultHttpRequest request = (DefaultHttpRequest) msg;
-            request.uri();
-
-            if("/test".equals(request.uri())){
-                DefaultFullHttpResponse response = new DefaultFullHttpResponse(
-                        request.protocolVersion(),
-                        HttpResponseStatus.OK,
-                        Unpooled.wrappedBuffer("ok".getBytes("UTF-8")));
-                ctx.writeAndFlush(response);
-                ctx.close();
+                outboundChannel.write(request.toString());
             }else {
-                if (outboundChannel.isActive()) {
-                    outboundChannel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
-                        @Override
-                        public void operationComplete(ChannelFuture future) {
-                            if (future.isSuccess()) {
-                                // was able to flush out data, start to read the next chunk
-                                ctx.channel().read();
-                            } else {
-                                future.channel().close();
-                            }
 
-                        }
-
-                    });
-
-                }
+//                outboundChannel.write(msg);
             }
-            return;
-        }else if(msg instanceof HttpContent){
 
-        }else if(msg instanceof LastHttpContent){
+            if (msg instanceof LastHttpContent){
+                LastHttpContent lastHttpContent = (LastHttpContent) msg;
 
-        }else{
-
+                outboundChannel.writeAndFlush(lastHttpContent.content()).addListener(new ChannelFutureListener() {
+                    @Override
+                    public void operationComplete(ChannelFuture future) {
+                        if (future.isSuccess()) {
+                            // was able to flush out data, start to read the next chunk
+                            ctx.channel().read();
+                        } else {
+                            future.cause().printStackTrace();
+                            future.channel().close();
+                        }
+                    }
+                });
+            }
         }
 
 
@@ -114,11 +105,8 @@ public class HexDumpProxyFrontendHandler extends ChannelInboundHandlerAdapter {
     @Override
 
     public void channelInactive(ChannelHandlerContext ctx) {
-
         if (outboundChannel != null) {
-
             closeOnFlush(outboundChannel);
-
         }
 
     }
@@ -127,9 +115,7 @@ public class HexDumpProxyFrontendHandler extends ChannelInboundHandlerAdapter {
     @Override
 
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-
         cause.printStackTrace();
-
         closeOnFlush(ctx.channel());
 
     }
@@ -140,13 +126,9 @@ public class HexDumpProxyFrontendHandler extends ChannelInboundHandlerAdapter {
      */
 
     static void closeOnFlush(Channel ch) {
-
         if (ch.isActive()) {
-
             ch.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
-
         }
-
     }
 
 }

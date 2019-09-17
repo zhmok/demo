@@ -1,14 +1,14 @@
 package com.zh.test.netty.echo;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-
-import java.net.InetSocketAddress;
+import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.SelfSignedCertificate;
 
 public class EchoServer {
     private int port;
@@ -27,34 +27,36 @@ public class EchoServer {
     }
 
     public void start() throws Exception {
+
+        // Configure the server.
+        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
         final EchoServerHandler serverHandler = new EchoServerHandler();
-        EventLoopGroup group = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
-            b.group(group).channel(NioServerSocketChannel.class)
-                    /*
-                     * 使用指定的 端口设置套 接字地址
-                     */
-                    .localAddress(new InetSocketAddress(port))
+            b.group(bossGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class)
+                    .option(ChannelOption.SO_BACKLOG, 100)
+//                    .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(serverHandler);
+                            ChannelPipeline p = ch.pipeline();
+
+                            //p.addLast(new LoggingHandler(LogLevel.INFO));
+                            p.addLast(serverHandler);
                         }
                     });
 
-            /*
-             * 异步地绑定服务器； 调用sync()方法阻塞 等待直到绑定完成
-             */
-            ChannelFuture f = b.bind().sync();
-            /*
-             * 获取 Channel 的 CloseFuture，并 且阻塞当前线 程直到它完成
-             */
-            f.channel().closeFuture().sync();
+            // Start the server.
+            ChannelFuture f = b.bind(port).sync();
 
+            // Wait until the server socket is closed.
+            f.channel().closeFuture().sync();
         } finally {
-            // 关闭 EventLoopGroup， 释放所有的资源
-            group.shutdownGracefully().sync();
+            // Shut down all event loops to terminate all threads.
+            bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
         }
     }
 }

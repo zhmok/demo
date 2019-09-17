@@ -25,11 +25,9 @@ public class HexDumpProxyInitializer extends ChannelInitializer<SocketChannel> {
 //        socketChanel.pipeline().addLast("http-chunked", new ChunkedWriteHandler());
 //        socketChanel.pipeline().addLast("http-server", new NettyHttpServerHandler());
         ch.pipeline().addLast(
-                new LoggingHandler(LogLevel.INFO),
-                new HttpRequestDecoder(),
-                new HexDumpProxyFrontendHandler(remoteHost, remotePort),
-                new HttpObjectAggregator(65535),
-                new HttpRequestEncoder()
+//                new LoggingHandler(LogLevel.INFO),
+                new HttpServerCodec(),
+                new HexDumpProxyFrontendHandler(remoteHost, remotePort)
         );
     }
 

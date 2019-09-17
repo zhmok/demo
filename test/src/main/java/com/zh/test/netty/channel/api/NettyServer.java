@@ -7,6 +7,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.util.CharsetUtil;
 
 import java.net.InetSocketAddress;
@@ -31,20 +32,19 @@ public class NettyServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
+//                            ch.pipeline().addLast("http-codec", new HttpServerCodec());
                             ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
                                 @Override
                                 public void channelActive(ChannelHandlerContext ctx) throws Exception {
-                                    ctx.writeAndFlush(buf.duplicate())
-                                            .addListener(ChannelFutureListener.CLOSE);
-
-
+//                                    ctx.writeAndFlush(buf.duplicate());
+                                            //.addListener(ChannelFutureListener.CLOSE);
                                 }
 
                                 @Override
                                 public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
                                     ByteBuf buf = Unpooled.copiedBuffer("your data", CharsetUtil.UTF_8);
-                                    ChannelFuture cf = ctx.writeAndFlush(buf);
-
+                                    ChannelFuture cf = ctx.write(buf);
+                                    System.out.println(buf.toString());
                                     cf.addListener(new ChannelFutureListener() {
                                         @Override
                                         public void operationComplete(ChannelFuture future) {
@@ -58,11 +58,18 @@ public class NettyServer {
 
                                     });
                                 }
+
+                                @Override
+                                public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+                                    ctx.flush();
+                                    ctx.close();
+                                }
                             });
-                            ChannelFuture f = b.bind().sync();
-                            f.channel().closeFuture().sync();
+
                         }
                     });
+            ChannelFuture f = b.bind().sync();
+            f.channel().closeFuture().sync();
         } finally {
             group.shutdownGracefully().sync();
         }
