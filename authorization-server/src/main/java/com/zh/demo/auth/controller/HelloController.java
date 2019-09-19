@@ -1,11 +1,10 @@
 package com.zh.demo.auth.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -20,7 +19,7 @@ public class HelloController {
 //    @Autowired
     ObjectMapper objectMapper = new ObjectMapper();
 
-    @Autowired
+    @Autowired(required = false)
     SessionRegistry sessionRegister;
 
     @GetMapping

@@ -34,9 +34,10 @@ ext {
 }
 
 
-configure(allprojects) { project ->
+configure(subprojects) { project ->
     group = "com.zh.demo"
     version = version.replace("BUILD.", "")
+
 
     apply plugin: 'java'
     apply plugin: 'org.springframework.boot'
@@ -125,7 +126,12 @@ configure(allprojects) { project ->
 
 configure(subprojects) {
     subProject ->
-//
+
+        tasks.withType(JavaCompile) {
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
+        }
+
         def isWeb = (subProject.name != 'common')
 //
         if (!isWeb) {
@@ -164,7 +170,7 @@ configure(subprojects) {
 ////    processResources.enabled = false;
 ////    classes.enabled = false;
 //    bootJar.enabled = false;
-////    jar.enabled = false;
+//    jar.enabled = false;
 //////    assemble.enabled = false;
 ////    compileTestJava.enabled = false;
 ////    processTestResources.enabled = false;
